@@ -10,7 +10,7 @@ let stdenv = pkgs.stdenv;
     #    tensorflow = tf;
     #};
     python_with_deps = pkgs.python36.withPackages
-      (ps: [ps.scipy tf ps.matplotlib ps.pandas ps.scikitlearn
+      (ps: [ps.scipy tf ps.matplotlib ps.pandas ps.scikitlearn ps.h5py
             ps.Keras
             ps.easydict ps.pillow ps.pyyaml
             ps.pyqt4 # Needed only for matplotlib backend
