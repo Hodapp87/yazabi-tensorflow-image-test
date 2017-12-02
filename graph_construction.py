@@ -71,10 +71,10 @@ def get_keras_model(input_shape=(32, 32, 1), output_count=10, use_dropout=True):
     # Fully-connected layers:
     dense_1 = MaxPooling2D((3, 3), strides=(2, 2), name='convpool_5')(conv_5)
     dense_1 = Flatten(name='flatten')(dense_1)
-    dense_1 = Dense(4096, activation='relu', name='dense_1')(dense_1)
+    dense_1 = Dense(256, activation='relu', name='dense_1')(dense_1)
     if use_dropout:
         dense_2 = Dropout(0.5)(dense_1)
-    dense_2 = Dense(4096, activation='relu', name='dense_2')(dense_2)
+    dense_2 = Dense(256, activation='relu', name='dense_2')(dense_2)
     if use_dropout:
         dense_3 = Dropout(0.5)(dense_2)
     dense_3 = Dense(output_count, name='dense_3')(dense_3)
