@@ -11,14 +11,29 @@ import numpy as np
 import sklearn.model_selection
 
 def normalize(images):
-    """Converts input images to greyscale, and normalizes them (i.e. zero
-    mean & unit variance for each pixel coordinate); returns a new
-    array of images with shape (Y,X,N).
+    """Normalizes input RGB images (i.e. zero mean & unit variance for
+    each pixel coordinate); returns a new array of images with shape
+    (N,Y,X,3).
     
     Parameters:
-    images -- Input array, shape (Y,X,3,N), for N color XxY images
+    images -- Input array, shape (N,Y,X,3), for N color XxY images
+    """
+    mean = images.mean(axis=0)
+    stdev = images.std(axis=0)
+    img_norm = (images - mean) / stdev
+    return img_norm
+
+def normalize_greyscale(images):
+    """Converts input RGB images to greyscale, and normalizes them
+    (i.e. zero mean & unit variance for each pixel coordinate);
+    returns a new array of images with shape (N,Y,X).
+    
+    Parameters:
+    images -- Input array, shape (N,Y,X,3), for N color XxY images
+
     """
     r, g, b = images[:,:,:,0], images[:,:,:,1], images[:,:,:,2]
+    # Standard NTSC/PAL luminance:
     img_lum = 0.2989*r + 0.5870*g + 0.1140*b
     # Note the axis=0. This normalization is per-pixel (though since
     # every pixel has been normalized, the aggregate mean & stdev are

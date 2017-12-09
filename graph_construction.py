@@ -37,13 +37,13 @@ def lrn(alpha=1e-4, k=2, beta=0.75, n=5, **kwargs):
 
     return Lambda(f, output_shape=lambda input_shape: input_shape, **kwargs)
 
-def get_keras_model(input_shape=(32, 32, 1), output_count=10, use_dropout=True):
+def get_keras_model(input_shape=(32, 32, 3), output_count=10, use_dropout=True):
     """Returns a Keras model for the image classification on this dataset.
     This is based heavily on AlexNet, but removes one of the initial
     deep layers due to the smaller image sizes here.
 
     Parameters:
-    input_shape -- Tuple with the model's input dimensions - default (32,32,1)
+    input_shape -- Tuple with the model's input dimensions - default (32,32,3)
     output_count -- Integer for number of output classes - default 10
     use_dropout -- Boolean for whether to use dropout in training (default True)
     """
@@ -51,13 +51,6 @@ def get_keras_model(input_shape=(32, 32, 1), output_count=10, use_dropout=True):
 
     # Convolutional layers:
     
-    #conv_1 = Conv2D(96, kernel_size=(11,11), strides=(4, 4), activation='relu', name='conv_1')(inputs)
-    #conv_2 = MaxPooling2D((3, 3), strides=(2, 2))(conv_1)
-    #conv_2 = lrn(name='convpool_1')(conv_2)
-    #conv_2 = ZeroPadding2D((2, 2))(conv_2)
-    #conv_2 = Conv2D(256, kernel_size=(5,5), activation='relu', name='conv_2')(conv_2)
-    
-    # Names are retained to be clear how original AlexNet translates:
     conv_2 = Conv2D(256, kernel_size=(5,5), activation='relu', name='conv_2')(inputs)
     conv_3 = MaxPooling2D((3, 3), strides=(2, 2))(conv_2)
     conv_3 = lrn()(conv_3)
@@ -66,15 +59,14 @@ def get_keras_model(input_shape=(32, 32, 1), output_count=10, use_dropout=True):
     conv_4 = ZeroPadding2D((1, 1))(conv_3)
     conv_4 = Conv2D(384, kernel_size=(3, 3), activation='relu', name='conv_4')(conv_4)
     conv_5 = ZeroPadding2D((1, 1))(conv_4)
-    conv_5 = Conv2D(128, kernel_size=(3, 3), activation='relu', name='conv_5')(conv_5)
-
+    conv_5 = Conv2D(256, kernel_size=(3, 3), activation='relu', name='conv_5')(conv_5)
     # Fully-connected layers:
     dense_1 = MaxPooling2D((3, 3), strides=(2, 2), name='convpool_5')(conv_5)
     dense_1 = Flatten(name='flatten')(dense_1)
-    dense_1 = Dense(256, activation='relu', name='dense_1')(dense_1)
+    dense_1 = Dense(512, activation='relu', name='dense_1')(dense_1)
     if use_dropout:
         dense_2 = Dropout(0.5)(dense_1)
-    dense_2 = Dense(256, activation='relu', name='dense_2')(dense_2)
+    dense_2 = Dense(512, activation='relu', name='dense_2')(dense_2)
     if use_dropout:
         dense_3 = Dropout(0.5)(dense_2)
     dense_3 = Dense(output_count, name='dense_3')(dense_3)

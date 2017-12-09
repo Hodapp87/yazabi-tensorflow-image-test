@@ -88,39 +88,46 @@ def train_model(num_epochs, batch_size, learning_rate):
     
     # Build & compile model:
     model = graph_construction.get_keras_model()
-    sgd = SGD(lr=learning_rate, decay=1e-6, momentum=0.9, nesterov=True)
+    sgd = SGD(lr=learning_rate, decay=1e-5, momentum=0.9, nesterov=True)
     model.compile(loss='categorical_crossentropy',
                   optimizer=sgd,
                   metrics=['accuracy'])
-    # Add an extra dimension to fit with model's input format:
-    train_X2 = np.expand_dims(train_X, axis=3)
-    valid_X2 = np.expand_dims(valid_X, axis=3)
 
     # Train:
-    history = BatchHistory(valid_X2, valid_y_cat)    
-    model.fit(train_X2,
+    history = BatchHistory(valid_X, valid_y_cat)    
+    model.fit(train_X,
               train_y_cat,
               epochs=num_epochs,
               batch_size=batch_size,
-              callbacks=[acc_history],
-              validation_data=(valid_X2, valid_y_cat))
+              callbacks=[history],
+              validation_data=(valid_X, valid_y_cat))
     # The callback slows things down a bit, but I'm not sure of a good
     # way around it.  If I were testing only on specific batches of
     # validation data, it might be less of an issue.
 
-    fname_base = "model_{0}_{1}_{2}".format(learning_rate, num_epochs,
+    fname_base = "model_{0}_{1}_{2}_rgb".format(learning_rate, num_epochs,
                                             batch_size)
     model.save_weights("{0}.h5".format(fname_base))
 
-    # Plot training/validation curve:
-    b = [i[0] for i in history.history]
-    plt.plot(b, [i[2] for i in history.history])
-    plt.plot(b, [i[1] for i in history.history])
+    # Plot training & validation accuracy, and loss (not called for,
+    # but useful):
+    b = [i["batch"] for i in history.history]
+    plt.plot(b, [i["acc"] for i in history.history])
+    plt.plot(b, [i["val_acc"] for i in history.history])
     plt.ylabel('Accuracy')
     plt.xlabel('Batch')
     plt.legend(['Training', 'Validation'], loc='lower right')
-    plt.savefig("{0}.png".format(fname_base))
+    plt.savefig("{0}_accuracy.png".format(fname_base))
     plt.show()
+    plt.close()
+    
+    plt.plot(b, [i["loss"] for i in history.history])
+    plt.plot(b, [i["val_loss"] for i in history.history])
+    plt.ylabel('Loss (categorical cross-entropy)')
+    plt.xlabel('Batch')
+    plt.legend(['Training', 'Validation'], loc='lower right')
+    plt.savefig("{0}_loss.png".format(fname_base))
+    plt.close()
 
 if __name__ == '__main__':
-    train_model(5, 64, 0.02)
+    train_model(10, 64, 0.01)
